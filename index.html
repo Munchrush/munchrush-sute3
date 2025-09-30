@@ -1,7 +1,71 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Munch Rush</title></head>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Munch Rush — Your Friendly Local Service</title>
+  <meta name="description" content="You came to the right spot. Local logistics & full-service distribution under one roof. Book a delivery or shop wholesale—fast." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23047857'/%3E%3Ctext x='50' y='58' font-size='54' text-anchor='middle' fill='white' font-family='Arial, Helvetica, sans-serif'%3EMR%3C/text%3E%3C/svg%3E" />
+  <style>
+    :root { --brand:#047857; --ink:#111827; --muted:#6b7280; --bg:#f9fafb; }
+    * { box-sizing:border-box }
+    body { margin:0; font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:var(--ink); background:var(--bg); }
+    .container { max-width:1080px; margin:0 auto; padding:24px }
+    .header { position:sticky; top:0; background:#ffffffd9; backdrop-filter:blur(8px); border-bottom:1px solid #e5e7eb }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:700 }
+    .badge { width:40px; height:40px; border-radius:14px; display:grid; place-items:center; background:var(--brand); color:#fff; font-weight:800 }
+    .btn { display:inline-flex; align-items:center; gap:10px; background:var(--brand); color:#fff; padding:10px 14px; border-radius:12px; text-decoration:none; border:0; cursor:pointer; font-weight:600 }
+    .btn.outline { background:#fff; color:var(--brand); border:1px solid var(--brand) }
+    .card { background:#fff; border:1px solid #e5e7eb; border-radius:20px; padding:18px }
+    .grid { display:grid; gap:14px } .grid.two { grid-template-columns:repeat(2,minmax(0,1fr)) }
+    .field label { display:block; font-size:12px; color:#374151; margin-bottom:4px }
+    .field input, .field textarea { width:100%; padding:10px 12px; border-radius:12px; border:1px solid #d1d5db; outline:none; background:#fff }
+    .footer { border-top:1px solid #e5e7eb; padding:24px; color:#6b7280; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px }
+    .notice { color:var(--muted); font-size:12px }
+    h1 { font-size:clamp(28px,5vw,48px); margin:10px 0 }
+    h2 { font-size:clamp(20px,3.2vw,28px); margin:6px 0 }
+    @media (max-width:900px){ .grid.two { grid-template-columns:1fr } }
+  </style>
+</head>
 <body>
-  <h1>Welcome to Munch Rush</h1>
-  <p><a href="/logistics/">Logistics</a> | <a href="/distribution/">Distribution</a></p>
-</body></html>
+  <header class="header">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between">
+      <div class="brand"><div class="badge">MR</div> Munch Rush</div>
+      <div>Fredericksburg, VA</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>You came to the right spot.</h1>
+    <p>We’re your friendly local service — <b>fast logistics</b> and <b>full-service distribution</b>. Give us a buzz and we’ll take care of it.</p>
+    <p style="display:flex; gap:10px; flex-wrap:wrap">
+      <a class="btn" href="/logistics/">Book a Delivery</a>
+      <a class="btn outline" href="/distribution/">Distribution & Wholesale</a>
+      <a class="btn outline" href="#contact">Give us a buzz</a>
+    </p>
+
+    <div class="card" id="contact">
+      <h2>Give us a buzz</h2>
+      <p>Email <a href="mailto:info@munchrushva.com"><b>info@munchrushva.com</b></a> or call <a href="tel:540-767-6683"><b>540-767-6683</b></a>. Or use the form — we’ll reply quickly.</p>
+      <form action="https://formspree.io/f/myznknba" method="POST" class="grid">
+        <input type="hidden" name="_redirect" value="https://www.munchrushva.com/thanks.html" />
+        <div class="grid two">
+          <div class="field"><label>Name</label><input name="name" required /></div>
+          <div class="field"><label>Email</label><input type="email" name="email" required /></div>
+        </div>
+        <div class="field"><label>Message</label><textarea name="message" rows="4" required></textarea></div>
+        <p><button class="btn">Send</button> <span class="notice">Prefer phone? Add your number & best time to call.</span></p>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div><b>Munch Rush</b> — Your friendly local service</div>
+    <div style="display:flex; gap:12px">
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
+      <a href="tel:540-767-6683">Call 540-767-6683</a>
+    </div>
+  </footer>
+</body>
+</html>
