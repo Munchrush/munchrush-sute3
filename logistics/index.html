@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Logistics — Book a Delivery | Munch Rush</title>
+  <style>
+    body{margin:0;font-family:ui-sans-serif,system-ui;background:#f9fafb;color:#111827}
+    .container{max-width:1080px;margin:0 auto;padding:24px}
+    .header{position:sticky;top:0;background:#ffffffd9;border-bottom:1px solid #e5e7eb}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+    .badge{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:#047857;color:#fff;font-weight:800}
+    .btn{display:inline-flex;align-items:center;gap:10px;background:#047857;color:#fff;padding:10px 14px;border-radius:12px;text-decoration:none;border:0;cursor:pointer;font-weight:600}
+    .btn.outline{background:#fff;color:#047857;border:1px solid #047857}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:18px}
+    .grid{display:grid;gap:14px} .grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .field label{display:block;font-size:12px;color:#374151;margin-bottom:4px}
+    .field input,.field textarea,.field select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #d1d5db;outline:none}
+    .footer{border-top:1px solid #e5e7eb;padding:24px;color:#6b7280;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    @media(max-width:900px){.grid.two{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header class="header">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between">
+    <div class="brand"><div class="badge">MR</div> Munch Rush</div>
+    <a class="btn outline" href="/">Back</a>
+  </div>
+</header>
+
+<main class="container">
+  <h1>Book a Delivery</h1>
+  <p>Enter your details — we calculate an instant price. Pay to confirm your booking.</p>
+  <div class="card">
+    <div class="grid two">
+      <div class="field"><label>Pickup address</label><input id="pickup" placeholder="123 Main St, Fredericksburg, VA"></div>
+      <div class="field"><label>Drop-off address</label><input id="dropoff" placeholder="456 Market St, Richmond, VA"></div>
+    </div>
+    <div class="grid two">
+      <div class="field"><label>Estimated miles (one-way)</label><input id="miles" type="number" min="1" step="0.1" value="10"></div>
+      <div class="field"><label>Weight (lbs)</label><input id="weight" type="number" min="1" step="1" value="20"></div>
+    </div>
+    <div class="grid two">
+      <div class="field"><label>Service level</label>
+        <select id="service"><option value="standard" selected>Standard (next-day)</option><option value="rush">Rush (same-day)</option></select>
+      </div>
+      <div class="field"><label>Pickup date</label><input id="date" type="date"></div>
+    </div>
+
+    <div style="margin-top:8px;color:#6b7280">Pricing: Base $25 + $2.50/mile + $0.25/lb over 20 lbs. Rush adds $15.</div>
+    <div style="margin-top:4px"><b>Total: $<span id="total">0.00</span></b></div>
+
+    <p style="display:flex;gap:10px;align-items:center;margin-top:10px">
+      <button class="btn" id="calcBtn">Recalculate</button>
+      <button class="btn" id="payBtn">Pay & Book</button>
+      <span class="notice" id="status" style="color:#6b7280"></span>
+    </p>
+  </div>
+</main>
+
+<footer class="footer">
+  <div><b>Munch Rush</b> — Fredericksburg, VA</div>
+  <div><a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></div>
+</footer>
+
+<script>
+function calculate(){
+  const m = parseFloat(document.getElementById('miles').value||0);
+  const w = parseFloat(document.getElementById('weight').value||0);
+  const s = document.getElementById('service').value;
+  let t = 25 + 2.5*m;
+  if (w>20) t += 0.25*(w-20);
+  if (s==='rush') t += 15;
+  document.getElementById('total').textContent = t.toFixed(2);
+  return t;
+}
+document.getElementById('calcBtn').addEventListener('click', calculate);
+calculate();
+
+async function pay(){
+  const amount = Math.round(calculate()*100);
+  const payload = {
+    mode:'payment',
+    amount_cents: amount,
+    success_url: window.location.origin + '/thanks.html',
+    cancel_url: window.location.origin + '/logistics/?canceled=1'
+  };
+  const res = await fetch('/.netlify/functions/create-checkout', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (data.url) window.location = data.url; else document.getElementById('status').textContent = 'Error: ' + (data.error||'Unknown');
+}
+document.getElementById('payBtn').addEventListener('click', pay);
+</script>
+</body>
+</html>
