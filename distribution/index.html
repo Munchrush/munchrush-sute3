@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Distribution & Wholesale | Munch Rush</title>
+  <style>
+    body{margin:0;font-family:ui-sans-serif,system-ui;background:#f9fafb;color:#111827}
+    .container{max-width:1080px;margin:0 auto;padding:24px}
+    .header{position:sticky;top:0;background:#ffffffd9;border-bottom:1px solid #e5e7eb}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+    .badge{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:#047857;color:#fff;font-weight:800}
+    .btn{display:inline-flex;align-items:center;gap:10px;background:#047857;color:#fff;padding:10px 14px;border-radius:12px;text-decoration:none;border:0;cursor:pointer;font-weight:600}
+    .btn.outline{background:#fff;color:#047857;border:1px solid #047857}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:18px}
+    .grid{display:grid;gap:14px} .grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .footer{border-top:1px solid #e5e7eb;padding:24px;color:#6b7280;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    table{width:100%;border-collapse:collapse} th,td{padding:8px;border-bottom:1px solid #e5e7eb}
+    @media(max-width:900px){.grid.three{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header class="header">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between">
+    <div class="brand"><div class="badge">MR</div> Munch Rush</div>
+    <a class="btn outline" href="/">Back</a>
+  </div>
+</header>
+
+<main class="container">
+  <h1>Distribution & Wholesale</h1>
+  <p>Multi-category wholesale. Build a cart and checkout for delivery.</p>
+
+  <div class="grid three" id="catalog"></div>
+
+  <div class="card" style="margin-top:16px">
+    <h2>Your Cart</h2>
+    <table><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Subtotal</th><th></th></tr></thead><tbody id="cartRows"></tbody></table>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <div style="color:#6b7280">Wholesale or retail—leave a note at checkout if needed.</div>
+      <div><b>Total: $<span id="total">0.00</span></b></div>
+    </div>
+    <p style="display:flex;gap:10px;align-items:center;margin-top:10px">
+      <button class="btn" id="checkoutBtn">Checkout & Pay</button>
+      <button class="btn outline" id="clearBtn">Clear Cart</button>
+      <span id="status" style="color:#6b7280"></span>
+    </p>
+  </div>
+</main>
+
+<footer class="footer">
+  <div><b>Munch Rush</b> — Fredericksburg, VA</div>
+  <div><a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></div>
+</footer>
+
+<script>
+const catalog = [
+  {id:'hemp-gummies', name:'CBD Gummies 25mg (30ct)', price:2999},
+  {id:'energy-8pack', name:'Energy Drink 12oz (8-pack)', price:1899},
+  {id:'chips-case', name:'Kettle Chips (case)', price:2499}
+];
+const cart = {};
+
+function renderCatalog(){
+  const root = document.getElementById('catalog'); root.innerHTML='';
+  catalog.forEach(item=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = '<div style="font-weight:600">'+item.name+'</div><div style="color:#6b7280">$'+(item.price/100).toFixed(2)+'</div><p><button class="btn">Add</button></p>';
+    card.querySelector('button').onclick = ()=>{ cart[item.id]=(cart[item.id]||0)+1; renderCart(); };
+    root.appendChild(card);
+  });
+}
+
+function renderCart(){
+  const rows = document.getElementById('cartRows'); rows.innerHTML='';
+  let total=0;
+  Object.entries(cart).forEach(([id,qty])=>{
+    const item = catalog.find(i=>i.id===id); const sub=item.price*qty; total+=sub;
+    const tr=document.createElement('tr');
+    tr.innerHTML = '<td>'+item.name+'</td><td>'+qty+'</td><td>$'+(item.price/100).toFixed(2)+'</td><td>$'+(sub/100).toFixed(2)+'</td><td><a href="#">Remove</a></td>';
+    tr.querySelector('a').onclick=(e)=>{e.preventDefault(); delete cart[id]; renderCart();};
+    rows.appendChild(tr);
+  });
+  document.getElementById('total').textContent=(total/100).toFixed(2);
+}
+
+async function checkout(){
+  const line_items = Object.entries(cart).map(([id,qty])=>{
+    const item=catalog.find(i=>i.id===id);
+    return { quantity: qty, price_data: { currency:'usd', product_data:{ name:item.name }, unit_amount:item.price } };
+  });
+  if(!line_items.length){ document.getElementById('status').textContent='Cart is empty'; return; }
+  document.getElementById('status').textContent='Creating checkout…';
+  try{
+    const res = await fetch('/.netlify/functions/create-checkout', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({mode:'payment', line_items, success_url: window.location.origin + '/thanks.html', cancel_url: window.location.origin + '/distribution/?canceled=1'})
+    });
+    const data = await res.json();
+    if (data.url) window.location = data.url; else document.getElementById('status').textContent='Error: '+(data.error||'Unknown');
+  }catch(e){ document.getElementById('status').textContent='Error creating checkout.'; }
+}
+
+document.getElementById('checkoutBtn').onclick=checkout;
+document.getElementById('clearBtn').onclick=()=>{ for(const k in cart) delete cart[k]; renderCart(); };
+
+renderCatalog(); renderCart();
+</script>
+</body>
+</html>
